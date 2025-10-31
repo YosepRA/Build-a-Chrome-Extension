@@ -1,0 +1,24 @@
+{
+  "name": "chrome-extension-mv3-practice",
+  "version": "1.0.0",
+  "description": "Chrome extension MV3 practice folder.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack --watch --mode development",
+    "build": "webpack --mode production"
+  },
+  "author": "Yosep Ryan Agusta <yosep.ryan.yra@gmail.com> (https://yosepra.github.io/)",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.28.5",
+    "@babel/preset-env": "^7.28.5",
+    "babel-loader": "^10.0.0",
+    "copy-webpack-plugin": "^13.0.1",
+    "css-loader": "^7.1.2",
+    "sass": "^1.93.2",
+    "sass-loader": "^16.0.6",
+    "style-loader": "^4.0.0",
+    "webpack": "^5.102.1",
+    "webpack-cli": "^6.0.1"
+  }
+}

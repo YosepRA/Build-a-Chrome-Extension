@@ -1,5 +1,7 @@
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const autoprefixer = require('autoprefixer');
 
 module.exports = {
   mode: 'development',
@@ -28,7 +30,31 @@ module.exports = {
       },
       {
         test: /\.s[ac]ss$/,
-        use: ['style-loader', 'css-loader', 'sass-loader'],
+        use: [
+          'style-loader',
+          'css-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                plugins: [autoprefixer],
+              },
+            },
+          },
+          {
+            loader: 'sass-loader',
+            options: {
+              sassOptions: {
+                silenceDeprecations: [
+                  'mixed-decls',
+                  'color-functions',
+                  'global-builtin',
+                  'import',
+                ],
+              },
+            },
+          },
+        ],
       },
     ],
   },
@@ -37,9 +63,13 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { from: './src/manifest.json', to: 'manifest.json' },
-        { from: './src/popup/popup.html', to: 'popup.html' },
         { from: './src/assets', to: 'assets' },
       ],
+    }),
+    new HtmlWebpackPlugin({
+      filename: 'popup.html',
+      template: './src/popup/popup.html',
+      excludeChunks: ['background', 'content'],
     }),
   ],
 };

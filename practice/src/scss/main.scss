@@ -1,7 +1,13 @@
-.container {
-  width: 280px;
-  color: #314d3e;
+@import 'bootstrap/scss/bootstrap';
+
+body {
+  width: 320px;
 }
+
+// .container {
+//   width: 280px;
+//   color: #314d3e;
+// }
 
 .title {
   font-size: 14px;

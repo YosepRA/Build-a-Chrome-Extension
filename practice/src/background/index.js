@@ -1,10 +1,12 @@
+/* global chrome */
+
 chrome.tabs.onUpdated.addListener((tabId, change, tab) => {
   if (tab.url && tab.url.includes('youtube.com')) {
     const queryString = tab.url.split('?')[1];
     const urlParameters = new URLSearchParams(queryString);
 
     const message = {
-      type: 'NEW',
+      type: 'new',
       videoId: urlParameters.get('v'),
     };
 

@@ -1,6 +1,7 @@
 /* global chrome */
 
-import { createElement } from '../utils/index.js';
+import { classnames } from 'Statics/index.js';
+import { fetchBookmarks, createElement as cel } from 'Utilities/index.js';
 import './content.scss';
 
 function getTimeSring(timestamp) {
@@ -29,44 +30,36 @@ function getTimeSring(timestamp) {
   });
 
   const newVideoLoaded = async () => {
-    const addBtnClassName = 'yt-bookmark__add-btn';
+    const addBtnClassName = `${classnames.PREFIX}__add-btn`;
     const activeAddButton = document.getElementsByClassName(addBtnClassName)[0];
 
     // If there is already a button, don't add any more buttons.
-    if (activeAddButton !== undefined) return undefined;
+    if (activeAddButton) return undefined;
 
     youtubePlayer = document.querySelector('.video-stream');
     youtubeControls = document.querySelector('.ytp-left-controls');
 
-    currentBookmarks = await fetchBookmarks();
+    currentBookmarks = await fetchBookmarks(activeVideo);
     createAddBookmarkButton(addBtnClassName);
 
     return undefined;
   };
 
   const createAddBookmarkButton = (addBtnClassName) => {
-    // const p = createElement('p', {}, 'Hello World');
-    // console.log('🚀 ~ createAddBookmarkButton ~ p:', p);
-    const btnContainer = document.createElement('div');
-    const addBtnImage = document.createElement('img');
+    const addBtnImage = cel(
+      'div',
+      { className: `${classnames.PREFIX}__container` },
+      cel('img', {
+        src: chrome.runtime.getURL('assets/bookmark.png'),
+        className: addBtnClassName,
+        onClick: handleAddBookmark,
+      }),
+    );
 
-    btnContainer.classList.add('yt-bookmark__container');
-
-    addBtnImage.src = chrome.runtime.getURL('assets/bookmark.png');
-    addBtnImage.classList.add(addBtnClassName);
-    addBtnImage.addEventListener('click', handleAddBookmark);
-
-    btnContainer.appendChild(addBtnImage);
-    youtubeControls.appendChild(btnContainer);
+    youtubeControls.appendChild(addBtnImage);
   };
 
-  const fetchBookmarks = async () => {
-    const result = await chrome.storage.local.get([activeVideo]);
-
-    return result[activeVideo] ? JSON.parse(result[activeVideo]) : [];
-  };
-
-  const handleAddBookmark = async (event) => {
+  const handleAddBookmark = async () => {
     const { currentTime } = youtubePlayer;
 
     const bookmark = {
@@ -74,7 +67,7 @@ function getTimeSring(timestamp) {
       title: getTimeSring(currentTime),
     };
 
-    currentBookmarks = await fetchBookmarks();
+    currentBookmarks = await fetchBookmarks(activeVideo);
 
     const newStorageData = {
       [activeVideo]: JSON.stringify(

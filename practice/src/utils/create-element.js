@@ -1,27 +1,60 @@
-function createElement({ tag, attributes, children }) {
-  const el = document.createElement(tag);
+function createElement(tag, attributes = {}, ...children) {
+  if (tag === Fragment) {
+    const fragment = document.createDocumentFragment();
 
-  if (typeof children === 'string') {
-    el.textContent = children;
+    children.flat().forEach((child) => {
+      fragment.appendChild(createNode(child));
+    });
 
-    return el;
+    return fragment;
   }
-  // debugger;
-  // Assign attributes to element.
-  if (Object.keys(attributes).length > 0) {
-    Object.keys(attributes).forEach((key) => {
-      const value = attributes[key];
 
-      el.setAttribute(key, value);
+  // Create element.
+  const element = document.createElement(tag);
+
+  if (attributes) {
+    Object.entries(attributes).forEach(([key, value]) => {
+      if (value == null) return undefined;
+
+      if (key === 'className') {
+        element.className = value;
+      } else if (key === 'style' && typeof value === 'object') {
+        Object.assign(element.style, value);
+      } else if (key.startsWith('on') && typeof value === 'function') {
+        const eventName = key.slice(2).toLowerCase();
+
+        element.addEventListener(eventName, value);
+      } else if (key in element) {
+        element[key] = value;
+      } else {
+        element.setAttributes(key, value);
+      }
     });
   }
 
-  const childrenList = children.map((child) => createElement(child));
-  childrenList.forEach((child) => {
-    el.appendChild(child);
-  });
+  if (children.length > 0) {
+    children.flat().forEach((child) => {
+      if (child != null) {
+        element.appendChild(createNode(child));
+      }
+    });
+  }
 
-  return el;
+  return element;
 }
+
+function createNode(child) {
+  if (typeof child === 'string' || typeof child === 'number') {
+    return document.createTextNode(child);
+  } else if (typeof child === 'boolean' || child === null) {
+    return document.createTextNode('');
+  }
+
+  return child;
+}
+
+const Fragment = Symbol.Fragment;
+
+export { Fragment };
 
 export default createElement;

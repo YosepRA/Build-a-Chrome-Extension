@@ -27,7 +27,7 @@ function createElement(tag, attributes = {}, ...children) {
       } else if (key in element) {
         element[key] = value;
       } else {
-        element.setAttributes(key, value);
+        element.setAttribute(key, value);
       }
     });
   }

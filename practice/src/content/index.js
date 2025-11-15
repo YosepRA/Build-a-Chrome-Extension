@@ -2,6 +2,7 @@
 
 import { classnames } from 'Statics/index.js';
 import { fetchBookmarks, createElement as cel } from 'Utilities/index.js';
+
 import './content.scss';
 
 function getTimeSring(timestamp) {
@@ -16,13 +17,21 @@ function getTimeSring(timestamp) {
   let youtubePlayer, youtubeControls, activeVideo, currentBookmarks;
 
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    const { type, value, videoId } = message;
+    const { type, videoId, timestamp } = message;
 
     switch (type) {
       case 'new':
         activeVideo = videoId;
         newVideoLoaded();
         break;
+
+      case 'play':
+        playBookmark(timestamp);
+        break;
+
+      case 'delete':
+        deleteBookmark(videoId, timestamp).then(sendResponse);
+        return true;
 
       default:
         break;
@@ -78,5 +87,31 @@ function getTimeSring(timestamp) {
     };
 
     chrome.storage.local.set(newStorageData);
+  };
+
+  const playBookmark = (timestamp) => {
+    youtubePlayer.currentTime = timestamp;
+  };
+
+  const deleteBookmark = async (videoId, timestamp) => {
+    const bookmarks = await fetchBookmarks(videoId);
+    const filteredBookmarks = bookmarks.filter(
+      (item) => item.timestamp !== parseFloat(timestamp),
+    );
+    const newStorageData = {
+      [videoId]: JSON.stringify(filteredBookmarks),
+    };
+
+    await chrome.storage.local.set(newStorageData);
+
+    const response = {
+      status: 'ok',
+      data: {
+        videoId,
+        timestamp,
+      },
+    };
+
+    return response;
   };
 })();
